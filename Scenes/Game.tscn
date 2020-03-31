@@ -1,9 +1,57 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://Assets/shotgun.obj" type="ArrayMesh" id=1]
 
 [sub_resource type="PlaneMesh" id=1]
 
-[sub_resource type="ConvexPolygonShape" id=4]
+[sub_resource type="ConvexPolygonShape" id=2]
 points = PoolVector3Array( -1.00542, 0.00546448, -1.00546, -1.00542, 0.00546448, 1.00546, 1.00546, 0.00546448, -1.00546, 1.00546, 0.00546448, 1.00546 )
+
+[sub_resource type="GDScript" id=5]
+script/source = "extends KinematicBody
+
+onready var Camera = $Pivot/Camera
+
+var gravity = -30
+var max_speed = 8
+var mouse_sensitivity = 0.002
+var mouse_range = 1.2
+
+var velocity = Vector3()
+
+func get_input():
+	var input_dir = Vector3()
+	if Input.is_action_pressed(\"forward\"):
+		input_dir += -Camera.global_transform.basis.z
+	if Input.is_action_pressed(\"back\"):
+		input_dir += Camera.global_transform.basis.z
+	if Input.is_action_pressed(\"left\"):
+		input_dir += -Camera.global_transform.basis.x
+	if Input.is_action_pressed(\"right\"):
+		input_dir += Camera.global_transform.basis.x
+	input_dir = input_dir.normalized()
+	return input_dir
+
+func _unhandled_input(event):
+	if event is InputEventMouseMotion:
+		$Pivot.rotate_x(-event.relative.y * mouse_sensitivity)
+		rotate_y(-event.relative.x * mouse_sensitivity)
+		$Pivot.rotation.x = clamp($Pivot.rotation.x, -mouse_range, mouse_range)
+
+func _physics_process(delta):
+	velocity.y += gravity * delta
+	var desired_velocity = get_input() * max_speed
+	
+	velocity.x = desired_velocity.x
+	velocity.z = desired_velocity.z
+	velocity = move_and_slide(velocity, Vector3.UP, true)
+"
+
+[sub_resource type="CapsuleShape" id=3]
+radius = 0.5
+
+[sub_resource type="BoxShape" id=4]
+extents = Vector3( 0.4, 0.1, 0.4 )
 
 [node name="Game" type="Spatial"]
 
@@ -16,4 +64,58 @@ material/0 = null
 
 [node name="CollisionShape" type="CollisionShape" parent="Ground"]
 transform = Transform( 3, 0, 0, 0, 1, 0, 0, 0, 3, 0, 0, 0 )
+shape = SubResource( 2 )
+
+[node name="Player" type="KinematicBody" parent="."]
+script = SubResource( 5 )
+
+[node name="Body" type="CollisionShape" parent="Player"]
+transform = Transform( 1, 0, 0, 0, -1.62921e-07, -1, 0, 1, -1.62921e-07, 0, 1.1, 0 )
+shape = SubResource( 3 )
+
+[node name="Feet" type="CollisionShape" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0 )
 shape = SubResource( 4 )
+
+[node name="Pivot" type="Spatial" parent="Player"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0 )
+
+[node name="Camera" type="Camera" parent="Player/Pivot"]
+current = true
+
+[node name="Gun" type="MeshInstance" parent="Player/Pivot"]
+transform = Transform( 0.980631, -0.137819, -0.139173, -0.139173, -0.990268, 3.25841e-07, -0.137819, 0.0193688, -0.990268, 0.2, -0.15, -0.3 )
+mesh = ExtResource( 1 )
+material/0 = null
+material/1 = null
+material/2 = null
+material/3 = null
+material/4 = null
+material/5 = null
+material/6 = null
+material/7 = null
+material/8 = null
+material/9 = null
+material/10 = null
+material/11 = null
+material/12 = null
+material/13 = null
+material/14 = null
+material/15 = null
+material/16 = null
+material/17 = null
+material/18 = null
+material/19 = null
+material/20 = null
+material/21 = null
+material/22 = null
+material/23 = null
+material/24 = null
+material/25 = null
+material/26 = null
+material/27 = null
+material/28 = null
+material/29 = null
+material/30 = null
+material/31 = null
+material/32 = null
